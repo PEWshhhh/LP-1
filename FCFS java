@@ -1,0 +1,71 @@
+package something;
+
+import java.util.Scanner;
+
+public class FCFS {
+	public static void main(String[] args) {
+		
+		System.out.println("Enter number of processes:");
+		Scanner in = new Scanner(System.in);
+		int totalprocess = in.nextInt();
+		
+		int pid[] = new int [totalprocess];
+		int ar[] = new int [totalprocess];
+		int bt[] = new int [totalprocess];
+		int ct[] = new int [totalprocess];
+		int tat[] = new int [totalprocess];
+		int wt[] = new int [totalprocess];
+		
+		for(int i=0; i < totalprocess; i++) {
+			System.out.println("Enter process" + (i+1) + "Arival Time");
+			ar[i] = in.nextInt();
+			System.out.println("Enter process" + (i+1) + "Burst Time");
+			bt[i] = in.nextInt();
+			pid[i]=i+1;
+		}
+		
+		int temp;
+		int temp1;
+		int temp2;
+		for (int j=0; j< totalprocess; j++) {
+			for( int k=0; k< totalprocess; k++) {
+				
+				if(ar[j] < ar[k]) {
+					temp = ar[j];
+					ar[j]=ar[k];
+					ar[k]=temp;
+					
+					temp1 = bt[j];
+					bt[j]=bt[k];
+					bt[k]=temp1;
+					
+					temp2 = pid[j];
+					pid[j]=pid[k];
+					pid[k]=temp2;
+				}
+			}
+		}
+		
+		ct[0] = ar[0] + bt[0];
+		for (int l=1; l< totalprocess; l++) {
+			ct[l]=ct[l-1]+bt[l];	
+		}
+		
+		for(int m=0; m< totalprocess; m++) {
+			tat[m]= ct[m] - ar[m]; 
+			wt[m]= tat[m] - bt[m];
+		}
+		
+		System.out.println("Process\t\tAT\t\tBT\t\tCT\t\tTAT\t\tWT");
+		for(int n=0; n< totalprocess; n++) {
+			System.out.println(pid[n] + "\t\t\t" + ar[n] + "\t\t"+ bt[n] + "\t\t"+ ct[n] + "\t\t"+ tat[n]+ "\t\t"+ wt[n]);
+		}
+		
+		System.out.println("Gantt chart:");
+		for(int o=0; o<totalprocess; o++) {
+			System.out.println("P" + pid[o] + " ");
+			
+		}
+	}
+
+}
