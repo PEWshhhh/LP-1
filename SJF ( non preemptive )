@@ -93,3 +93,40 @@ public class SJF {
 		in.close();
 	}
 }
+
+
+//🔹 Definition:
+//
+//Shortest Job First (SJF) is a CPU scheduling algorithm where the process having the smallest burst time is executed first.
+//It is also known as Shortest Process Next (SPN).
+//In non-preemptive SJF, once a process starts execution, it cannot be interrupted until it finishes.
+//
+//🔹 Working:
+//
+//All processes are sorted based on their arrival time.
+//
+//From the processes that have already arrived, the one with the shortest burst time is selected next.
+//
+//The selected process is executed completely before the next process is chosen.
+//
+//This continues until all processes are executed.
+//
+//🔹 Characteristics:
+//
+//Scheduling type: Non-Preemptive
+//
+//Basis: Burst time (execution time)
+//
+//Goal: Minimize average waiting time and turnaround time
+//
+//Queue type: Ready queue based on burst time
+//
+//🔹 Advantages:
+//
+//✅ Gives minimum average waiting time for a given set of processes.
+//✅ Efficient for batch systems where all processes arrive together.
+//
+//🔹 Disadvantages:
+//
+//❌ Not practical in real time systems — exact burst time is usually not known in advance.
+//❌ Can lead to starvation — longer processes may wait indefinitely if many short ones keep arriving.
