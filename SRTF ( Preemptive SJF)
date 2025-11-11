@@ -1,0 +1,144 @@
+package something;
+
+import java.util.Scanner;
+
+public class Preemtive {
+
+	public static void main(String[] args) {
+
+		Scanner in = new Scanner(System.in);
+		System.out.println("Enter Total Number of Processes:");
+		int totalprocess = in.nextInt();
+
+		int pid[] = new int[totalprocess];
+		int ar[] = new int[totalprocess];
+		int bt[] = new int[totalprocess];
+		int ct[] = new int[totalprocess];
+		int tat[] = new int[totalprocess];
+		int wt[] = new int[totalprocess];
+		int rembt[] = new int[totalprocess];
+		int completed[] = new int[totalprocess];
+		int rt[] = new int[totalprocess]; // response time
+		int start[] = new int[totalprocess]; // to store first start time
+		int executed[] = new int[200]; // for gantt chart order (big enough)
+
+		for (int i = 0; i < totalprocess; i++) {
+			System.out.println("Enter Process-" + (i + 1) + " Arrival Time:");
+			ar[i] = in.nextInt();
+			System.out.println("Enter Process-" + (i + 1) + " Burst Time:");
+			bt[i] = in.nextInt();
+			rembt[i] = bt[i];
+			pid[i] = i + 1;
+			completed[i] = 0;
+			start[i] = -1; // not started yet
+		}
+
+		int currenttime = 0;
+		int completedtime = 0;
+		int indx = -1;
+		int minBT;
+		int e = 0; // index for executed[]
+
+		// ✅ SRTF Execution
+		while (completedtime < totalprocess) {
+			minBT = 999999;
+			indx = -1;
+
+			// find process with shortest remaining time among arrived
+			for (int i = 0; i < totalprocess; i++) {
+				if (ar[i] <= currenttime && completed[i] == 0 && rembt[i] < minBT && rembt[i] > 0) {
+					minBT = rembt[i];
+					indx = i;
+				}
+			}
+
+			if (indx == -1) {
+				currenttime++;
+				continue;
+			}
+
+			// record first start time for response time
+			if (start[indx] == -1) {
+				start[indx] = currenttime;
+			}
+
+			// store in gantt chart
+			executed[e] = pid[indx];
+			e++;
+
+			// execute 1 unit
+			rembt[indx]--;
+			currenttime++;
+
+			// if process finishes
+			if (rembt[indx] == 0) {
+				completed[indx] = 1;
+				ct[indx] = currenttime;
+				completedtime++;
+			}
+		}
+
+		// ✅ Calculate TAT, WT, RT
+		for (int i = 0; i < totalprocess; i++) {
+			tat[i] = ct[i] - ar[i];
+			wt[i] = tat[i] - bt[i];
+			rt[i] = start[i] - ar[i]; // first response time
+		}
+
+		// ✅ Print table
+		System.out.println("\nProcess\tAT\tBT\tCT\tTAT\tWT\tRT");
+		for (int i = 0; i < totalprocess; i++) {
+			System.out.println("P" + pid[i] + "\t" + ar[i] + "\t" + bt[i] + "\t" + ct[i] + "\t" + tat[i] + "\t" + wt[i] + "\t" + rt[i]);
+		}
+
+		// ✅ Gantt chart after table (no time, just process order)
+		System.out.println("\nGantt Chart:");
+		for (int i = 0; i < e; i++) {
+			System.out.print("P" + executed[i] + " ");
+		}
+		System.out.println();
+
+		in.close();
+	}
+}
+
+
+//🔹 Definition:
+//
+//Shortest Remaining Time First (SRTF) is the preemptive version of the Shortest Job First (SJF) algorithm.
+//In this method, the process with the smallest remaining burst time is executed next.
+//If a new process arrives with a shorter remaining time than the current one, the CPU preempts (switches) to that new process.
+//
+//🔹 Working:
+//
+//All processes are sorted based on their arrival time.
+//
+//At every unit of time, the scheduler checks for all the arrived processes.
+//
+//The process having the shortest remaining burst time is selected for execution.
+//
+//If a new process arrives with a smaller remaining time, it preempts the currently running one.
+//
+//The CPU continues this process until all jobs are completed.
+//
+//🔹 Characteristics:
+//
+//Type: Preemptive
+//
+//Basis: Remaining burst time
+//
+//Scheduling criteria: Shortest remaining time
+//
+//Goal: Reduce average waiting time and turnaround time
+//
+//
+//🔹 Advantages:
+//
+//✅ Provides better average waiting time than FCFS or SJF Non-preemptive.
+//✅ CPU is efficiently utilized because it always works on the shortest remaining job.
+//
+//🔹 Disadvantages:
+//
+//❌ High overhead due to frequent context switching.
+//❌ Possibility of starvation for longer processes if shorter ones keep arriving.
+//❌ Needs exact knowledge of remaining burst times.
