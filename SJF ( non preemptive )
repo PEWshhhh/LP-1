@@ -1,0 +1,95 @@
+package something;
+
+import java.util.Scanner;
+
+public class SJF {
+	
+	public static void main(String[] args) {
+		
+		System.out.println("Enter Total Number of Processes:");
+		Scanner in = new Scanner(System.in);
+		int totalprocess = in.nextInt();
+		
+		int pid[] = new int [totalprocess];
+		int ar[] = new int [totalprocess];
+		int bt[] = new int [totalprocess];
+		int ct[] = new int [totalprocess];
+		int tat[] = new int [totalprocess];
+		int wt[] = new int [totalprocess];
+		int comp[] = new int[totalprocess];
+		int executed[] = new int[totalprocess]; // to store order
+		
+		
+		for(int i = 0; i < totalprocess; i++) {
+			System.out.println("Enter Process-" + (i+1) + " Arrival Time:");
+			ar[i] = in.nextInt();
+			System.out.println("Enter Process-" + (i+1) + " Burst Time:");
+			bt[i] = in.nextInt();
+			pid[i] = i + 1;
+			comp[i] = 0;
+		}
+		
+		int temp;
+		for(int i = 0; i < totalprocess; i++) {
+			for(int j = 0; j < totalprocess; j++) {
+				if(ar[i] < ar[j]) {
+					temp = ar[i];
+					ar[i] = ar[j];
+					ar[j] = temp;
+					
+					temp = bt[i];
+					bt[i] = bt[j];
+					bt[j] = temp;
+					
+					temp = pid[i];
+					pid[i] = pid[j];
+					pid[j] = temp;
+				}
+			}
+		}
+		
+		int currenttime = 0;
+		int completedtime = 0;
+		int e = 0;
+		
+		while(completedtime < totalprocess) {
+			int indx = -1;
+			int minBT = 999999999;
+			
+			for (int i = 0; i < totalprocess; i++) {
+				if(ar[i] <= currenttime && bt[i] < minBT && comp[i] == 0) {
+					minBT = bt[i];
+					indx = i;
+				}
+			}
+			
+			if (indx != -1) {
+				currenttime = currenttime + bt[indx];
+				ct[indx] = currenttime;
+				tat[indx] = ct[indx] - ar[indx];
+				wt[indx] = tat[indx] - bt[indx];
+				comp[indx] = 1;
+				executed[e] = pid[indx];
+				e++;
+				completedtime++;
+			}
+			else {
+				currenttime++;
+			}
+		}
+		
+		System.out.println("\nProcess\tAT\tBT\tCT\tTAT\tWT");
+		for(int n = 0; n < totalprocess; n++) {
+			System.out.println(pid[n] + "\t" + ar[n] + "\t" + bt[n] + "\t" + ct[n] + "\t" + tat[n] + "\t" + wt[n]);
+		}
+		
+		// ✅ Gantt chart printed after table, only process order
+		System.out.println("\nGantt Chart:");
+		for(int i = 0; i < e; i++) {
+			System.out.print("P" + executed[i] + " ");
+		}
+		System.out.println();
+
+		in.close();
+	}
+}
