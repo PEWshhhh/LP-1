@@ -69,3 +69,40 @@ public class FCFS {
 	}
 
 }
+
+
+
+
+//FCFS (First Come First Serve) is the simplest CPU scheduling algorithm.
+//In this method, the process that arrives first in the ready queue is executed first.
+//It follows the FIFO (First In, First Out) principle — just like a queue in a bank or ticket counter.
+//
+//🔹 Working:
+//
+//The CPU is allocated to the process that requests it first.
+//
+//Once a process starts execution, it runs until completion (non-preemptive).
+//
+//After completion, the next process in the queue gets the CPU.
+//
+//🔹 Characteristics:
+//
+//Scheduling type: Non-preemptive
+//
+//Basis: Arrival time
+//
+//Queue: FIFO (First In First Out)
+//
+//Implementation: Usually done using a simple ready queue.
+//
+//
+//🔹 Advantages:
+//
+//✅ Simple to understand and implement
+//✅ Works well when all processes have similar burst times
+//
+//🔹 Disadvantages:
+//
+//❌ Leads to Convoy Effect — a long process can delay all others
+//❌ Poor utilization of CPU
+//❌ Not suitable for time-sharing systems
