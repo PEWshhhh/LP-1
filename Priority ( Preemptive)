@@ -1,0 +1,145 @@
+package something;
+
+import java.util.Scanner;
+
+/*
+------------------------------------------------------------
+🧠 THEORY: PRIORITY SCHEDULING (PREEMPTIVE)
+------------------------------------------------------------
+
+🔹 Definition:
+In **Preemptive Priority Scheduling**, the CPU always executes
+the process with the **highest priority** (👉 higher number = higher priority).
+If a new process arrives with a higher priority than the one
+currently running, the CPU immediately switches to it (preemption).
+
+🔹 Working:
+1. Sort processes by **arrival time**.
+2. At each time unit, select the **highest priority** process
+   among all arrived processes.
+3. If a process with a higher priority arrives, preempt the current one.
+4. Continue until all processes are complete.
+
+🔹 Characteristics:
+- Type: Preemptive
+- Basis: Priority value (higher number = higher priority)
+- CPU can switch between processes during execution.
+
+🔹 Formulas:
+    Turnaround Time (TAT) = Completion Time - Arrival Time  
+    Waiting Time (WT)     = Turnaround Time - Burst Time  
+    Response Time (RT)    = First Start Time - Arrival Time
+
+🔹 Advantages:
+✅ Better response for high-priority processes  
+✅ Preemptive — ensures critical tasks get CPU quickly  
+
+🔹 Disadvantages:
+❌ More context switching  
+❌ Starvation for low-priority processes  
+
+------------------------------------------------------------
+*/
+
+public class PriorityPreemptive {
+
+    public static void main(String[] args) {
+
+        Scanner in = new Scanner(System.in);
+
+        System.out.println("Enter Total Number of Processes:");
+        int totalProcesses = in.nextInt();
+
+        int processId[] = new int[totalProcesses];
+        int arrivalTime[] = new int[totalProcesses];
+        int burstTime[] = new int[totalProcesses];
+        int priority[] = new int[totalProcesses];
+        int completionTime[] = new int[totalProcesses];
+        int turnaroundTime[] = new int[totalProcesses];
+        int waitingTime[] = new int[totalProcesses];
+        int responseTime[] = new int[totalProcesses];
+        int remainingTime[] = new int[totalProcesses];
+        int isCompleted[] = new int[totalProcesses];
+        int ganttChart[] = new int[200]; // store execution order
+
+        // Input
+        for (int i = 0; i < totalProcesses; i++) {
+            System.out.println("\nEnter details for Process-" + (i + 1) + ":");
+            System.out.print("Arrival Time: ");
+            arrivalTime[i] = in.nextInt();
+            System.out.print("Burst Time: ");
+            burstTime[i] = in.nextInt();
+            System.out.print("Priority (higher number = higher priority): ");
+            priority[i] = in.nextInt();
+            processId[i] = i + 1;
+            remainingTime[i] = burstTime[i];
+            responseTime[i] = -1; // not yet started
+            isCompleted[i] = 0;
+        }
+
+        int currentTime = 0;
+        int completed = 0;
+        int gIndex = 0;
+
+        // Execution loop
+        while (completed < totalProcesses) {
+            int selectedProcess = -1;
+            int highestPriority = -1; // since higher = higher priority
+
+            // find the process with the highest priority among arrived
+            for (int i = 0; i < totalProcesses; i++) {
+                if (arrivalTime[i] <= currentTime && isCompleted[i] == 0) {
+                    if (priority[i] > highestPriority) {
+                        highestPriority = priority[i];
+                        selectedProcess = i;
+                    } else if (priority[i] == highestPriority) {
+                        // if same priority, choose earlier arrival
+                        if (selectedProcess == -1 || arrivalTime[i] < arrivalTime[selectedProcess]) {
+                            selectedProcess = i;
+                        }
+                    }
+                }
+            }
+
+            if (selectedProcess == -1) {
+                currentTime++;
+                continue;
+            }
+
+            // record response time if process is starting first time
+            if (responseTime[selectedProcess] == -1) {
+                responseTime[selectedProcess] = currentTime - arrivalTime[selectedProcess];
+            }
+
+            // execute for 1 unit (preemptive)
+            ganttChart[gIndex++] = processId[selectedProcess];
+            remainingTime[selectedProcess]--;
+            currentTime++;
+
+            // if process finished
+            if (remainingTime[selectedProcess] == 0) {
+                completionTime[selectedProcess] = currentTime;
+                turnaroundTime[selectedProcess] = completionTime[selectedProcess] - arrivalTime[selectedProcess];
+                waitingTime[selectedProcess] = turnaroundTime[selectedProcess] - burstTime[selectedProcess];
+                isCompleted[selectedProcess] = 1;
+                completed++;
+            }
+        }
+
+        // ✅ Print result table (Priority before Process)
+        System.out.println("\nPRI\tProcess\tAT\tBT\tCT\tTAT\tWT\tRT");
+        for (int i = 0; i < totalProcesses; i++) {
+            System.out.println(priority[i] + "\tP" + processId[i] + "\t" + arrivalTime[i] + "\t" + burstTime[i]
+                    + "\t" + completionTime[i] + "\t" + turnaroundTime[i] + "\t" + waitingTime[i] + "\t" + responseTime[i]);
+        }
+
+        // ✅ Print Gantt Chart after table
+        System.out.println("\nGantt Chart:");
+        for (int i = 0; i < gIndex; i++) {
+            System.out.print("P" + ganttChart[i] + " ");
+        }
+        System.out.println();
+
+        in.close();
+    }
+}
