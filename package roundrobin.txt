@@ -1,0 +1,135 @@
+package roundrobin;
+
+import java.util.*;
+
+public class RoundRobin {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+
+        int[] pid = new int[n];
+        int[] at = new int[n];
+        int[] bt = new int[n];
+        int[] btRemaining = new int[n];
+        int[] st = new int[n];
+        int[] ct = new int[n];
+        int[] wt = new int[n];
+        int[] tat = new int[n];
+        boolean[] done = new boolean[n];
+
+        for (int i = 0; i < n; i++) {
+            pid[i] = i + 1;
+            System.out.println("Enter Arrival Time and Burst Time for Process " + pid[i] + ":");
+            at[i] = sc.nextInt();
+            bt[i] = sc.nextInt();
+            btRemaining[i] = bt[i];
+            st[i] = -1; // not started yet
+        }
+
+        System.out.print("Enter Time Quantum: ");
+        int tq = sc.nextInt();
+
+        Queue<Integer> q = new LinkedList<>();
+        List<Integer> ganttProcess = new ArrayList<>();
+        List<Integer> ganttTime = new ArrayList<>();
+
+        int currentTime = 0, completed = 0, prev = -1;
+        boolean[] inQueue = new boolean[n];
+
+        // Initially enqueue processes that arrive at 0
+        for (int i = 0; i < n; i++) {
+            if (at[i] == 0) {
+                q.add(i);
+                inQueue[i] = true;
+            }
+        }
+
+        while (completed < n) {
+            if (q.isEmpty()) {
+                // CPU idle until next process arrives
+                int nextArrival = Integer.MAX_VALUE;
+                for (int i = 0; i < n; i++) {
+                    if (!done[i]) nextArrival = Math.min(nextArrival, at[i]);
+                }
+                currentTime = nextArrival;
+                for (int i = 0; i < n; i++) {
+                    if (!done[i] && at[i] <= currentTime && !inQueue[i]) {
+                        q.add(i);
+                        inQueue[i] = true;
+                    }
+                }
+                continue;
+            }
+
+            int idx = q.poll();
+
+            if (st[idx] == -1) st[idx] = currentTime; // first execution start time
+
+            if (prev != idx) {
+                ganttProcess.add(pid[idx]);
+                ganttTime.add(currentTime);
+                prev = idx;
+            }
+
+            if (btRemaining[idx] > tq) {
+                btRemaining[idx] -= tq;
+                currentTime += tq;
+            } else {
+                currentTime += btRemaining[idx];
+                btRemaining[idx] = 0;
+                ct[idx] = currentTime;
+                tat[idx] = ct[idx] - at[idx];
+                wt[idx] = tat[idx] - bt[idx];
+                done[idx] = true;
+                completed++;
+            }
+
+            // Enqueue new arrivals
+            for (int i = 0; i < n; i++) {
+                if (!done[i] && at[i] <= currentTime && !inQueue[i]) {
+                    q.add(i);
+                    inQueue[i] = true;
+                }
+            }
+
+            // If process still has burst time left, requeue it
+            if (!done[idx]) {
+                q.add(idx);
+            }
+        }
+        ganttTime.add(currentTime);
+
+        float totalWT = 0, totalTAT = 0;
+        for (int i = 0; i < n; i++) {
+            totalWT += wt[i];
+            totalTAT += tat[i];
+        }
+
+        // Print process table
+        System.out.println("\nProcess\tAT\tBT\tST\tCT\tWT\tTAT");
+        for (int i = 0; i < n; i++) {
+            System.out.println("P" + pid[i] + "\t" + at[i] + "\t" + bt[i] + "\t" +
+                    st[i] + "\t" + ct[i] + "\t" + wt[i] + "\t" + tat[i]);
+        }
+
+        System.out.printf("\nAverage Waiting Time: %.2f\n", totalWT / n);
+        System.out.printf("Average Turnaround Time: %.2f\n", totalTAT / n);
+
+        // Print Gantt Chart
+        System.out.println("\nGantt Chart:");
+        for (int i = 0; i < ganttProcess.size(); i++) {
+            System.out.print("|  P" + ganttProcess.get(i) + "  ");
+        }
+        System.out.println("|");
+
+        System.out.print(ganttTime.get(0));
+        for (int i = 1; i < ganttTime.size(); i++) {
+            System.out.printf("     %d", ganttTime.get(i));
+        }
+        System.out.println();
+
+        sc.close();
+    }
+}
