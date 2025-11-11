@@ -1,0 +1,86 @@
+package fifo;
+
+import java.util.*;
+
+public class FIFO_page_replacement {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // Input number of pages
+        System.out.print("Enter number of pages: ");
+        int n = sc.nextInt();
+
+        int[] pages = new int[n];
+        System.out.println("Enter the page reference string:");
+        for (int i = 0; i < n; i++) {
+            pages[i] = sc.nextInt();
+        }
+
+        // Input number of frames
+        System.out.print("Enter number of frames: ");
+        int frames = sc.nextInt();
+
+        Set<Integer> memory = new HashSet<>();   // stores current pages in memory
+        Queue<Integer> index = new LinkedList<>(); // FIFO order
+        int pageFaults = 0;
+
+        for (int i = 0; i < n; i++) {
+            int page = pages[i];
+
+            // If page not present in memory (page fault)
+            if (!memory.contains(page)) {
+                if (memory.size() == frames) {
+                    // Remove the first inserted page (FIFO)
+                    int oldPage = index.poll();
+                    memory.remove(oldPage);
+                }
+                // Insert the new page
+                memory.add(page);
+                index.add(page);
+                pageFaults++;
+            }
+
+            // Print memory state
+            System.out.print("Step " + (i + 1) + ": ");
+            for (int p : memory) {
+                System.out.print(p + " ");
+            }
+            System.out.println();
+        }
+
+        System.out.println("\nTotal Page Faults = " + pageFaults);
+        sc.close();
+    }
+}
+
+package something;
+
+import java.util.Scanner;
+
+/*
+------------------------------------------------------------
+🧠 THEORY: PAGE REPLACEMENT – FIFO (First In First Out)
+------------------------------------------------------------
+
+🔹 Definition:
+When a page fault occurs (a page is not found in memory),
+the **FIFO Page Replacement Algorithm** replaces the **oldest page**
+that entered the memory first.
+
+🔹 Working:
+1. Maintain a queue of pages in memory (frames).
+2. When a new page is needed:
+   - If there is space → add it.
+   - If memory is full → remove the page that came **first (oldest)**.
+3. Continue until all page references are processed.
+
+🔹 Characteristics:
+- Type: Non-preemptive
+- Uses queue data structure
+- Simple and easy to implement
+
+🔹 Example:
+Page reference string: 7, 0, 1, 2, 0, 3, 0, 4  
+Number of frames: 3
+
+Execution (frame status):
