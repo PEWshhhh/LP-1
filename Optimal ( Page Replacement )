@@ -1,0 +1,101 @@
+/*
+------------------------------------------------------------
+🧠 THEORY: OPTIMAL PAGE REPLACEMENT ALGORITHM
+------------------------------------------------------------
+🔹 Definition:
+The Optimal Page Replacement algorithm replaces the page 
+that will **not be used for the longest period of time** in the future.
+
+🔹 Working:
+1. On a page fault, look ahead in the reference string.
+2. Replace the page that is not used for the longest time.
+
+🔹 Advantage:
+✅ Produces the minimum number of page faults (best case).
+
+🔹 Disadvantage:
+❌ Cannot be implemented in real systems (requires future knowledge).
+
+🔹 Example:
+Reference string: 7, 0, 1, 2, 0, 3, 0, 4, 2, 3
+Frames: 3
+Page Faults = 7
+------------------------------------------------------------
+*/
+
+package optimal;
+
+import java.util.*;
+
+public class OptimalPageReplacement {
+
+    // Function to predict the page to replace
+    static int predict(int[] pages, List<Integer> memory, int n, int index) {
+        int farthest = index, result = -1;
+
+        for (int i = 0; i < memory.size(); i++) {
+            int j;
+            for (j = index; j < n; j++) {
+                if (memory.get(i) == pages[j]) {
+                    if (j > farthest) {
+                        farthest = j;
+                        result = i;
+                    }
+                    break;
+                }
+            }
+            if (j == n) { // Page not used again
+                return i;
+            }
+        }
+        return (result == -1) ? 0 : result;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // Input number of pages
+        System.out.print("Enter number of pages: ");
+        int n = sc.nextInt();
+
+        int[] pages = new int[n];
+        System.out.println("Enter the page reference string:");
+        for (int i = 0; i < n; i++) {
+            pages[i] = sc.nextInt();
+        }
+
+        // Input number of frames
+        System.out.print("Enter number of frames: ");
+        int frames = sc.nextInt();
+
+        List<Integer> memory = new ArrayList<>();
+        int pageFaults = 0;
+
+        for (int i = 0; i < n; i++) {
+            int page = pages[i];
+
+            // Check if page is already in memory
+            boolean found = memory.contains(page);
+
+            if (!found) {
+                if (memory.size() < frames) {
+                    memory.add(page);
+                } else {
+                    int j = predict(pages, memory, n, i + 1);
+                    memory.set(j, page);
+                }
+                pageFaults++;
+            }
+
+            // Print memory state
+            System.out.print("Step " + (i + 1) + ": ");
+            for (int p : memory) {
+                System.out.print(p + " ");
+            }
+            System.out.println();
+        }
+
+        System.out.println("\nTotal Page Faults = " + pageFaults);
+        sc.close();
+    }
+}
